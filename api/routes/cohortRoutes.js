@@ -2,7 +2,10 @@ const express = require('express');
 
 const router = express.Router();
 
-const db = require('../../data/dbConfig');
+const {
+  getCohorts,
+
+} = require('../helpers/cohortDbHelper');
 
 /*
 @GET: all cohorts
@@ -12,7 +15,7 @@ const db = require('../../data/dbConfig');
 
 router.get('/', async (req, res) => {
   try {
-    const cohorts = await db('cohorts'); // SQL - select * from cohorts
+    const cohorts = await getCohorts(); // SQL - select * from cohorts
 
     if (cohorts.length) {
       res.status(200).json(cohorts)
