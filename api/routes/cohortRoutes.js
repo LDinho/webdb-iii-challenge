@@ -7,6 +7,8 @@ const {
   getCohortById,
   getStudentsInCohort,
   addCohort,
+  updateCohort,
+  deleteCohort
 
 } = require('../helpers/cohortDbHelper');
 
@@ -146,6 +148,45 @@ router.post('/', async (req, res) => {
 */
 
 router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  const cohortChanges = req.body;
+
+  const { name } = cohortChanges;
+
+  if (!name) {
+    return res.status(400)
+      .json({
+        message: 'provide a name'
+      });
+  }
+
+  try {
+    const cohort = await getCohortById(id);
+
+    if (!cohort) {
+      return res.status(404)
+        .json({
+          message: 'cohort not found'
+        });
+
+    } else {
+
+      const updatedCohort = await updateCohort(id, cohortChanges );
+
+      return res.status(200)
+        .json({
+          message: `${cohort.name} has been updated to ${updatedCohort.name}`
+        });
+    }
+  }
+  catch (err) {
+    res.status(500)
+      .json({
+        err,
+        message: 'Unable to process request'
+      })
+  }
 
 })
 
@@ -156,6 +197,33 @@ router.put('/:id', async (req, res) => {
 */
 
 router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const cohort = await getCohortById(id);
+
+    if (!cohort) {
+      return res.status(404)
+        .json({
+          message: 'cohort not found'
+        });
+
+    } else {
+
+      await deleteCohort(id);
+
+      return res.status(200).json({
+        message: `${cohort.name} has been deleted`
+      });
+    }
+  }
+  catch (err) {
+    res.status(500)
+      .json({
+        err,
+        message: 'Unable to process request'
+      })
+  }
 
 })
 
