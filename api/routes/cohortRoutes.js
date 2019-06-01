@@ -4,6 +4,8 @@ const router = express.Router();
 
 const {
   getCohorts,
+  getCohortById,
+  getStudentsInCohort,
 
 } = require('../helpers/cohortDbHelper');
 
@@ -15,7 +17,7 @@ const {
 
 router.get('/', async (req, res) => {
   try {
-    const cohorts = await getCohorts(); // SQL - select * from cohorts
+    const cohorts = await getCohorts();
 
     if (cohorts.length) {
       res.status(200).json(cohorts)
@@ -38,7 +40,24 @@ router.get('/', async (req, res) => {
 */
 
 router.get('/:id', async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    const cohort = await getCohortById(id);
+
+    if (!cohort) {
+      return res.status(404).json({message: 'cohort not found'});
+    }
+
+    res.status(200).json(cohort);
+  }
+  catch (err) {
+    res.status(500)
+      .json({
+        err,
+        message: 'Unable to process request'
+      })
+  }
 });
 
 /*
@@ -48,6 +67,27 @@ router.get('/:id', async (req, res) => {
 */
 
 router.get('/:id/students', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const students = await getStudentsInCohort(id);
+
+    if (students.length) {
+      res.status(200).json(students);
+
+    } else {
+      res.status(404)
+        .json({
+          message: `cohort has no students.`
+        })
+    }
+  }
+  catch (err) {
+    res.status(500)
+      .json({
+        error: `Unable to retrieve cohort's students.`
+      })
+  }
 
 });
 
