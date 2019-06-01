@@ -6,6 +6,7 @@ const {
   getCohorts,
   getCohortById,
   getStudentsInCohort,
+  addCohort,
 
 } = require('../helpers/cohortDbHelper');
 
@@ -98,7 +99,44 @@ router.get('/:id/students', async (req, res) => {
 */
 
 router.post('/', async (req, res) => {
+  const newCohort = req.body;
 
+  try {
+    const { name } = newCohort;
+
+    const cohorts = await getCohorts();
+
+    const result = cohorts.filter((cohort) => {
+      return name === cohort.name;
+    });
+
+    if (!name) {
+      return res.status(400)
+        .json({
+          error: 'name missing'
+        });
+
+    } else if (result.length) {
+
+      return res.status(400)
+        .json({
+          message: `${name} already exist`
+        });
+
+    } else {
+
+      const cohortAdded = await addCohort(newCohort);
+
+      res.status(201).json(cohortAdded);
+    }
+  }
+  catch (err) {
+    return res.status(500)
+      .json({
+        err,
+        message: 'Unable to process request'
+      })
+  }
 })
 
 /*

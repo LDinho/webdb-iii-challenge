@@ -4,7 +4,7 @@ module.exports = {
   getCohorts,
   getCohortById,
   getStudentsInCohort,
-  // addCohort,
+  addCohort,
   // updateCohort,
   // deleteCohort
 }
@@ -34,4 +34,13 @@ function getStudentsInCohort(cohortId) {
     )
     .where('c.id', cohortId)
     .orderBy('s.name');
+}
+
+async function addCohort(cohort) {
+  const [id] = await db('cohorts')
+    .insert(cohort, 'id');
+  // we get the id back when inserting
+  // new data
+
+  return getCohortById(id);
 }
